@@ -1,0 +1,103 @@
+#/bin/zsh
+
+# 加载变量和函数
+source argument.sh 
+source function.sh
+
+cat << EOF
+**************************************
+*       Welcome to my tools          *
+*       Author: baowendong           *
+*       Date: 2020/6/28              *
+**************************************
+EOF
+
+# 检查用户名和密码是否保存
+checkUser
+
+# 选择上班时间
+show_start_work_time
+index=-1
+while(($index!=0))
+do
+    echo 'Please input index:'
+    read index
+    case $index in
+        0) program_end;;
+        1) START_TIME=0900 index=0;;
+        2) START_TIME=0830 index=0;;
+        3) START_TIME=0845 index=0;;
+        4) START_TIME=0915 index=0;;
+        5) START_TIME=0930 index=0;;
+        6) START_TIME=0945 index=0;;
+        *) show_start_work_time;;
+    esac
+done
+
+# 选择下班时间 index=7 手动输入下班时间
+show_end_work_time
+index=-1
+while(($index!=0))
+do
+    echo 'Please input index:'
+    read index
+    case $index in
+        0) program_end;;
+        1) END_TIME=1800 index=0;;
+        2) END_TIME=1730 index=0;;
+        3) END_TIME=1745 index=0;;
+        4) END_TIME=1815 index=0;;
+        5) END_TIME=1830 index=0;;
+        6) END_TIME=1845 index=0;;
+        7) echo "input you self work time example:1700"; read END_TIME; index=0;;
+        *) show_start_work_time;;
+    esac
+done
+
+# 保存cookies
+if [ ! -d ".cookies" ]
+then
+	mkdir .cookies
+    curl -c .cookies/cookies.txt 'http://vps.cyberfrontier.jp/worksystem/login/login/' \
+    -H 'User-Agent: baowendong' \
+    --data-raw "data%5BUser%5D%5Buser_code%5D=$USER_CODE&data%5BUser%5D%5Buser_pass%5D=$USER_PASS" 
+fi
+
+# 计算工作时间
+WORK_TIME=`curl --silent  -b .cookies/cookies.txt "http://vps.cyberfrontier.jp/worksystem/Report/mathWorkTime_ajax/" \
+-H "User-Agent: baowendong" \
+--data-raw "pro_id=97&in_time_h=${START_TIME:0:2}&in_time_m=${START_TIME:2:2}&leave_time_h=${END_TIME:0:2}&leave_time_m=${END_TIME:2:2}&toal_out_time=0"`
+
+# 输入日报内容 
+report_contant
+
+# 填写日吧
+curl -b .cookies/cookies.txt --request POST "http://vps.cyberfrontier.jp/worksystem/Report/saveReort" \
+-H 'User-Agent: baowendong' \
+--form "data[Form][form_time_m_1]=1" \
+--form "data[Form][table_index]=1" \
+--form "data[Form][project_count]=1" \
+--form "data[Form][hid_id]=" \
+--form "data[Form][project_index]=1" \
+--form "data[Form][time_flg]=0" \
+--form "data[Form][in_time_h]=${START_TIME:0:2}" \
+--form "data[Form][in_time_m]=${START_TIME:2:2}" \
+--form "data[Form][leave_time_h]=${END_TIME:0:2}" \
+--form "data[Form][leave_time_m]=${END_TIME:2:2}" \
+--form "data[Form][cause]=1" \
+--form "data[Form][work_time]=$WORK_TIME" \
+--form "data[Form][from_time_h_1]=99" \
+--form "data[Form][from_time_m_1]=99" \
+--form "data[Form][to_time_h_1]=99" \
+--form "data[Form][to_time_m_1]=99" \
+--form "data[Form][out_time_1]=" \
+--form "data[Form][project_1]=97" \
+--form "data[Form][phase_1]=1" \
+--form "data[Form][itme_1]=$REPORT_CONTANT" \
+--form "data[Form][work_time_h_1]=${WORK_TIME%.*}" \
+--form "data[Form][work_time_m_1]=${WORK_TIME#*.}" \
+--form "data[Form][problem]=" \
+--form "data[Form][chief_status]=1" \
+--form "data[Form][hid_report_day]=$TODAT"  
+
+program_end

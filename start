@@ -58,10 +58,11 @@ done
 if [ ! -d ".cookies" ]
 then
 	mkdir .cookies
-    curl -c .cookies/cookies.txt 'http://vps.cyberfrontier.jp/worksystem/login/login/' \
-    -H 'User-Agent: baowendong' \
-    --data-raw "data%5BUser%5D%5Buser_code%5D=$USER_CODE&data%5BUser%5D%5Buser_pass%5D=$USER_PASS" 
 fi
+
+curl -c .cookies/cookies.txt 'http://vps.cyberfrontier.jp/worksystem/login/login/' \
+-H 'User-Agent: baowendong' \
+--data-raw "data%5BUser%5D%5Buser_code%5D=$USER_CODE&data%5BUser%5D%5Buser_pass%5D=$USER_PASS" 
 
 # 计算工作时间
 WORK_TIME=`curl --silent  -b .cookies/cookies.txt "http://vps.cyberfrontier.jp/worksystem/Report/mathWorkTime_ajax/" \

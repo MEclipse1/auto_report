@@ -2,15 +2,15 @@
 function checkUser(){
 if [ -x $USER_CODE ]
 then
-    echo 'Please input user_codex:'
+    echo 'Please input user_code:'
     read  USER_CODE
 	echo USER_CODE=$USER_CODE >> argument.sh
 fi
 
 if [ -x $USER_PASS ]
 then
-    echo 'Please input user_codex:'
-    read  USER_PASS
+    echo 'Please input user_password:'
+    read -s USER_PASS
 	echo USER_PASS=$USER_PASS >> argument.sh
 fi
 }

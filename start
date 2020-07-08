@@ -24,13 +24,21 @@ do
     read index
     case $index in
         0) program_end;;
-        1) START_TIME=0900 index=0;;
-        2) START_TIME=0830 index=0;;
-        3) START_TIME=0845 index=0;;
-        4) START_TIME=0915 index=0;;
-        5) START_TIME=0930 index=0;;
-        6) START_TIME=0945 index=0;;
-        *) show_start_work_time;;
+        1) START_TIME=0900 break;;
+        2) START_TIME=0830 break;;
+        3) START_TIME=0845 break;;
+        4) START_TIME=0915 break;;
+        5) START_TIME=0930 break;;
+        6) START_TIME=0945 break;;
+        *) 
+            if [ -x $index ] # 敲会车的情况 使用默认值
+            then
+                START_TIME=0900 break
+            fi
+            if [[ ! $index =~ ^[1-9]+$  ]]; then #输入的不是数字类型则退出
+               exit 1 
+            fi
+            show_start_work_time;;
     esac
 done
 
@@ -43,14 +51,22 @@ do
     read index
     case $index in
         0) program_end;;
-        1) END_TIME=1800 index=0;;
-        2) END_TIME=1730 index=0;;
-        3) END_TIME=1745 index=0;;
-        4) END_TIME=1815 index=0;;
-        5) END_TIME=1830 index=0;;
-        6) END_TIME=1845 index=0;;
-        7) echo "input you self work time example:1700"; read END_TIME; index=0;;
-        *) show_start_work_time;;
+        1) END_TIME=1800 break;;
+        2) END_TIME=1730 break;;
+        3) END_TIME=1745 break;;
+        4) END_TIME=1815 break;;
+        5) END_TIME=1830 break;;
+        6) END_TIME=1845 break;;
+        7) echo "input you self work time example:1700"; read END_TIME; break;;
+        *) 
+            if [ -x $index ] # 敲会车的情况 使用默认值
+            then
+                END_TIME=1800 break
+            fi
+            if [[ ! $index =~ ^[1-9]+$  ]]; then #输入的不是数字类型则退出
+               exit 1 
+            fi
+            show_end_work_time;;
     esac
 done
 

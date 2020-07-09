@@ -1,8 +1,9 @@
 #/bin/zsh
 
 # 加载变量和函数
-source argument.sh 
-source function.sh
+PATH_REPORT=$(cd "$(dirname "$0")";pwd)
+source $PATH_REPORT/argument.sh 
+source $PATH_REPORT/function.sh
 
 cat << EOF
 **************************************

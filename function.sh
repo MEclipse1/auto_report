@@ -4,19 +4,19 @@ if [ -x $USER_CODE ]
 then
     echo 'Please input user_code:'
     read  USER_CODE
-	echo USER_CODE=$USER_CODE >> argument.sh
+    echo USER_CODE=$USER_CODE >> argument.sh
 fi
 
 if [ -x $USER_PASS ]
 then
     echo 'Please input user_password:'
     read -s USER_PASS
-	echo USER_PASS=$USER_PASS >> argument.sh
+    echo USER_PASS=$USER_PASS >> argument.sh
 fi
 }
 
 function report_contant(){
-	echo 'Please input reprot_contant(end of ;)'
+    echo 'Please input reprot_contant(end of ;)'
     read  -d ";" REPORT_CONTANT 
 }
 

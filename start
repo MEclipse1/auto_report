@@ -83,14 +83,70 @@ curl -c .cookies/cookies.txt 'http://vps.cyberfrontier.jp/worksystem/login/login
 
 # 选择工作项目
 curl -s -L -b .cookies/cookies.txt "http://vps.cyberfrontier.jp/worksystem/Select/report" -H "User-Agent: baowendong" > .cookies/project.html
-grep 'var project_id_str' .cookies/project.html >> argument.sh
-grep 'var project_name_str' .cookies/project.html >> argument.sh
+grep 'var project_id_str' .cookies/project.html >> .cookies/project.sh
+grep 'var project_name_str' .cookies/project.html >> .cookies/project.sh
 rm -rf .cookies/project.html
+
+# explain:
+# var project_name_str  = "Duplo新聞市場アプリ（android）,自動精算機,UPLink";
+#   ||
+#   \/
+# Duplo新聞市場アプリ（android）,自動精算機,UPLink 
+project_name_str=`egrep -o '".*"' .cookies/project.sh | sed -e 's/\"//g; s/,/ /g' | tail -1`
+
+#* select project
+#* [1] Duplo新聞市場アプリ（android） (default)
+#* [2] 自動精算機
+#* [3] UPLink
+#* [0] exit
+#*************************************
+#Please input index:
+index=1
+echo '* select project'
+for var in $project_name_str
+do
+    if [ $index -eq $PROJECT_INDEX_DEFAULT ]
+    then
+        echo "* [$index] $var (default)"
+    else
+        echo "* [$index] $var"
+    fi 
+    index=$[$index + 1]
+done
+echo '* [0] exit'
+echo '*************************************'
+echo 'Please input index:'
+read project_index 
+if [ -x $project_index ] # 敲会车的情况 使用默认值
+then
+   project_index=$PROJECT_INDEX_DEFAULT
+fi
+if [[ ! $project_index =~ ^[1-9]+$ ]] && [ $project_index -ne 1 ]; then #输入的不是数字类型则退出
+    exit 1 
+fi
+
+# explain:
+# var project_id_str  = "94,95,97";
+#   ||
+#   \/
+# 94,95,97 
+index=1
+project_id_str=`egrep -o '".*"' test1 | sed -e 's/\"//g; s/,/ /g' | head -1`
+for var in $project_id_str
+do
+   if [ $index -eq $project_index ] 
+   then
+        project_id=$var
+        Expression=`egrep "PROJECT_INDEX_DEFAULT=.*" argument.sh`
+        sed -i "" "s/${Expression}/PROJECT_INDEX_DEFAULT=${index}/g" argument.sh
+   fi
+   index=$[$index + 1]
+done 
 
 # 计算工作时间
 WORK_TIME=`curl --silent  -b .cookies/cookies.txt "http://vps.cyberfrontier.jp/worksystem/Report/mathWorkTime_ajax/" \
 -H "User-Agent: baowendong" \
---data-raw "pro_id=97&in_time_h=${START_TIME:0:2}&in_time_m=${START_TIME:2:2}&leave_time_h=${END_TIME:0:2}&leave_time_m=${END_TIME:2:2}&toal_out_time=0"`
+--data-raw "pro_id=${project_id}&in_time_h=${START_TIME:0:2}&in_time_m=${START_TIME:2:2}&leave_time_h=${END_TIME:0:2}&leave_time_m=${END_TIME:2:2}&toal_out_time=0"`
 
 # 输入日报内容 
 report_contant
@@ -115,7 +171,7 @@ curl -b .cookies/cookies.txt --request POST "http://vps.cyberfrontier.jp/worksys
 --form "data[Form][to_time_h_1]=99" \
 --form "data[Form][to_time_m_1]=99" \
 --form "data[Form][out_time_1]=" \
---form "data[Form][project_1]=97" \
+--form "data[Form][project_1]=${project_id}" \
 --form "data[Form][phase_1]=1" \
 --form "data[Form][itme_1]=$REPORT_CONTANT" \
 --form "data[Form][work_time_h_1]=${WORK_TIME%.*}" \

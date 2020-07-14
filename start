@@ -131,7 +131,7 @@ fi
 #   \/
 # 94,95,97 
 index=1
-project_id_str=`egrep -o '".*"' test1 | sed -e 's/\"//g; s/,/ /g' | head -1`
+project_id_str=`egrep -o '".*"' .cookies/project.sh  | sed -e 's/\"//g; s/,/ /g' | head -1`
 for var in $project_id_str
 do
    if [ $index -eq $project_index ] 

@@ -138,7 +138,7 @@ do
    then
         project_id=$var
         Expression=`egrep "PROJECT_INDEX_DEFAULT=.*" argument.sh`
-        sed -i "" "s/${Expression}/PROJECT_INDEX_DEFAULT=${index}/g" argument.sh
+        sed -i "s/${Expression}/PROJECT_INDEX_DEFAULT=${index}/g" argument.sh
    fi
    index=$[$index + 1]
 done 

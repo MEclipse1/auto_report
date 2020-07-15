@@ -82,10 +82,12 @@ curl -c .cookies/cookies.txt 'http://vps.cyberfrontier.jp/worksystem/login/login
 --data-raw "data%5BUser%5D%5Buser_code%5D=$USER_CODE&data%5BUser%5D%5Buser_pass%5D=$USER_PASS" 
 
 # 选择工作项目
-curl -s -L -b .cookies/cookies.txt "http://vps.cyberfrontier.jp/worksystem/Select/report" -H "User-Agent: baowendong" > .cookies/project.html
-grep 'var project_id_str' .cookies/project.html >> .cookies/project.sh
-grep 'var project_name_str' .cookies/project.html >> .cookies/project.sh
-rm -rf .cookies/project.html
+if [ ! -f ".cookies/project.sh" ]
+then
+    curl -s -L -b .cookies/cookies.txt "http://vps.cyberfrontier.jp/worksystem/Select/report" -H "User-Agent: baowendong" > .cookies/project.html
+    grep 'var project_id_str' .cookies/project.html >> .cookies/project.sh
+    grep 'var project_name_str' .cookies/project.html >> .cookies/project.sh
+fi
 
 # explain:
 # var project_name_str  = "Duplo新聞市場アプリ（android）,自動精算機,UPLink";
@@ -113,6 +115,7 @@ do
     fi 
     index=$[$index + 1]
 done
+echo "* [$index] reset project"
 echo '* [0] exit'
 echo '*************************************'
 echo 'Please input index:'
@@ -142,6 +145,12 @@ do
    fi
    index=$[$index + 1]
 done 
+if [ $index -eq $project_index ] 
+then
+    rm -rf .cookies/project.sh
+    echo "请重新运行"
+    exit 0
+fi
 
 # 计算工作时间
 WORK_TIME=`curl --silent  -b .cookies/cookies.txt "http://vps.cyberfrontier.jp/worksystem/Report/mathWorkTime_ajax/" \
